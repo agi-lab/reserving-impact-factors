@@ -141,25 +141,20 @@ mseIF.4.1 <- function(triangle, i, I=10) {
             if (k > i) {mseIF.R[k, j] <- 0}
             else if (k == i) {
                 
-                part1 <- 0
-                for (p in (I-i+1):(I-1)) {
+                if (i==2) {
+                    part1 <- dy.sigma2[I-i+1]
+                } else {
+                    # When j = I-i+1, the lhs does not exist
+                    part1 <- dy.sigma2[I-i+1]*prod(d.facts2[(I-i+2):(I-1)])
                     
-                    first <- dy.sigma2[I-i+1]*prod(d.facts2[(I-i+2):(I-1)])
-                    last <- prod(d.facts[(I-i+1):(I-2)])*dy.sigma2[I-1]
-                    
-                    if (i==2) {
-                        part1 <- dy.sigma2[I-i+1]
-                    } else if (i==3) {
-                        part1 <- first + last
-                    } else {
-                        temp <- first + last
-                        for (p in (I-i+2):(I-2)) {
-                            lhs <- prod(d.facts[(I-i+1):(p-1)])
-                            rhs <- prod(d.facts2[(p+1):(I-1)])
-                            temp <- temp + lhs*dy.sigma2[p]*rhs
-                        }
-                        part1 <- temp
+                    for (p in (I-i+2):(I-2)) {
+                        lhs <- prod(d.facts[(I-i+1):(p-1)])
+                        rhs <- prod(d.facts2[(p+1):(I-1)])
+                        part1 <- part1 + lhs*dy.sigma2[p]*rhs
                     }
+                    
+                    # When j = I-1, the rhs does not exist
+                    part1 <- part1 + prod(d.facts[(I-i+1):(I-2)])*dy.sigma2[I-1]
                 }
 
                 part2 <- 2*C_i*B.67
