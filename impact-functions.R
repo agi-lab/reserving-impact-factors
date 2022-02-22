@@ -141,24 +141,29 @@ mseIF.4.1 <- function(triangle, i, I=10) {
             if (k > i) {mseIF.R[k, j] <- 0}
             else if (k == i) {
                 
-                if (i==2) {
-                    part1 <- dy.sigma2[I-i+1]
-                } else {
-                    # When j = I-i+1, the lhs does not exist
-                    part1 <- dy.sigma2[I-i+1]*prod(d.facts2[(I-i+2):(I-1)])
+                part1 <- 0
+                for (p in (I-i+1):(I-1)) {
                     
-                    for (p in (I-i+2):(I-2)) {
-                        lhs <- prod(d.facts[(I-i+1):(p-1)])
-                        rhs <- prod(d.facts2[(p+1):(I-1)])
-                        part1 <- part1 + lhs*dy.sigma2[p]*rhs
+                    first <- dy.sigma2[I-i+1]*prod(d.facts2[(I-i+2):(I-1)])
+                    last <- prod(d.facts[(I-i+1):(I-2)])*dy.sigma2[I-1]
+                    
+                    if (i==2) {
+                        part1 <- dy.sigma2[I-i+1]
+                    } else if (i==3) {
+                        part1 <- first + last
+                    } else {
+                        temp <- first + last
+                        for (p in (I-i+2):(I-2)) {
+                            lhs <- prod(d.facts[(I-i+1):(p-1)])
+                            rhs <- prod(d.facts2[(p+1):(I-1)])
+                            temp <- temp + lhs*dy.sigma2[p]*rhs
+                        }
+                        part1 <- temp
                     }
-                    
-                    # When j = I-1, the rhs does not exist
-                    part1 <- part1 + prod(d.facts[(I-i+1):(I-2)])*dy.sigma2[I-1]
                 }
-
+                
                 part2 <- 2*C_i*B.67
-
+                
                 mseIF.R[k, j] <- part1 + part2
                 
             } else if (k < i) {
@@ -191,7 +196,6 @@ rmseIF.4.1 <- function(triangle, i, I=10) {
 
 IF.4.1 <- rmseIF.4.1(cum.claims, 8)                                             # Table 2 / Figure 7
 hist3D(z = IF.4.1, theta=-45, phi = 10)
-
 ####################################################################################################################
 mseIF.4.2 <- function(triangle, I=10) {
     
@@ -292,7 +296,7 @@ dlnC.dX <- function(triangle, n, r, k, j) {
     # \frac{\partial lnC_{n, r}}/{\partial X_{k, j}}
     # Different formula to B.3                                                  
     if ((n==k) & (j <= r)) {
-        return (1/triangle[k, j])
+        return (1/triangle[n, r])
     }
     return (0)
 }
